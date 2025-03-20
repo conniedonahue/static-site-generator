@@ -17,25 +17,28 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             output.append(node)
-        l, r = 0, 0
+            continue
+        l, r = 0, node.text.find(delimiter)
+        if r == -1:
+            output.append(node)
+            continue
         open_delimiter = False
         while r < len(node.text):
-            if node.text[r] != delimiter:
+            if node.text[r:r + len(delimiter)] != delimiter:
                 r += 1
-            elif node.text[r] == delimiter and open_delimiter == False:
+            elif node.text[r:r + len(delimiter)] == delimiter and open_delimiter == False:
                 open_delimiter = True
                 output.append(TextNode(node.text[l:r], TextType.TEXT))
-                l = r + 1
-                r += 1
-            elif node.text[r] == delimiter and open_delimiter == True:
+                r += len(delimiter)
+                l = r
+            elif node.text[r:r + len(delimiter)] == delimiter and open_delimiter == True:
                 open_delimiter = False
                 output.append(TextNode(node.text[l:r], text_type))
-                l = r + 1
-                r += 1
+                r += len(delimiter)
+                l = r
         if open_delimiter == True:
             raise ValueError("Invalid Markdown Syntax")
         elif open_delimiter == False and l < r:
             output.append(TextNode(node.text[l:r], TextType.TEXT))
-
-    print ("output: ", output)    
+    
     return output

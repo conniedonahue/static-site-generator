@@ -23,5 +23,38 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode(" word", TextType.TEXT),
         ])
 
+    def test_italic_node(self):
+        node = TextNode("This is text with an _italic_ word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+
+        self.assertEqual(new_nodes, [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word", TextType.TEXT),
+        ])
+
+    def test_mult_nodes(self):
+        node1 = TextNode("This is text with a **bold** word", TextType.TEXT)
+        node2 = TextNode("This is text with an _italic_ word", TextType.TEXT)
+        node3 = TextNode("This is text with a `code` word", TextType.TEXT)
+        bold_nodes = split_nodes_delimiter([node1, node2, node3], "**", TextType.BOLD)
+        print(f"bold nodes: {bold_nodes}")
+        italic_nodes = split_nodes_delimiter(bold_nodes, "_", TextType.ITALIC)
+        print(f"italic: {italic_nodes}")
+        code_nodes = split_nodes_delimiter(italic_nodes, "`", TextType.CODE)
+        print(f"code: {code_nodes}")
+
+        self.assertEqual(code_nodes, [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" word", TextType.TEXT),
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word", TextType.TEXT),
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("code", TextType.CODE),
+            TextNode(" word", TextType.TEXT),
+        ])
+
 if __name__ == "__main__":
     unittest.main()
