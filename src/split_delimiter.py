@@ -28,7 +28,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 r += 1
             elif node.text[r:r + len(delimiter)] == delimiter and open_delimiter == False:
                 open_delimiter = True
-                output.append(TextNode(node.text[l:r], TextType.TEXT))
+                if r > 0:
+                    output.append(TextNode(node.text[l:r], TextType.TEXT))
                 r += len(delimiter)
                 l = r
             elif node.text[r:r + len(delimiter)] == delimiter and open_delimiter == True:

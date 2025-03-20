@@ -32,8 +32,23 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode("italic", TextType.ITALIC),
             TextNode(" word", TextType.TEXT),
         ])
+    
+    def test_many_types_one_node(self):
+        node = TextNode("This is text with an _italic_ word and a **bold** word and a `code block`", TextType.TEXT)
+        italic_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        bold_nodes = split_nodes_delimiter(italic_nodes, "**", TextType.BOLD)
+        code_nodes = split_nodes_delimiter(bold_nodes, "`", TextType.CODE)
 
-    def test_mult_nodes(self):
+        self.assertEqual(code_nodes, [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE)
+        ])
+
+    def test_many_types_many_nodes(self):
         node1 = TextNode("This is text with a **bold** word", TextType.TEXT)
         node2 = TextNode("This is text with an _italic_ word", TextType.TEXT)
         node3 = TextNode("This is text with a `code` word", TextType.TEXT)
@@ -55,6 +70,19 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode("code", TextType.CODE),
             TextNode(" word", TextType.TEXT),
         ])
+
+    def test_missing_matching_delimiter(self):
+        node = TextNode('This is an invalid **bold* text', TextType.TEXT)
+        with self.assertRaises(ValueError) as cm:
+            split_nodes_delimiter([node], "**", TextType.BOLD)
+        
+        self.assertEquals(str(cm.exception), "Invalid Markdown Syntax")
+
+    def test_entire_node_one_style(self):
+        node = TextNode("**This entire node is bold**", TextType.TEXT)
+        new_node = split_nodes_delimiter([node], "**", TextType.BOLD)
+
+        self.assertEqual(new_node, [TextNode("This entire node is bold", TextType.BOLD)])
 
 if __name__ == "__main__":
     unittest.main()
