@@ -1,7 +1,8 @@
 from textnode import TextNode, TextType
+from extract import extract_markdown_images, extract_markdown_links
 
 def main():
-    dummy = TextNode("this is some anchor text", TextType.LINK, "http://boot.dev")
-    print(dummy)
+    text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    print (extract_markdown_links(text))
 
 main()
